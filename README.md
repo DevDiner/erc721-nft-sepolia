@@ -15,7 +15,7 @@ Each demo uses **Sepolia** for minimal gas costs. You can get test ETH from the 
 This project demonstrates the application of several advanced skills in Ethereum smart contract development and deployment, focusing on NFTs, ERC20 tokens, and staking functionality on the Sepolia testnet. The key skills involved include:
 
 ### **1. Smart Contract Development:**
-   - **ERC721 Token Creation:** Developed an ERC721 compliant contract for minting NFTs (FreeMint NFT and Mintable NFT) with the ability to handle on-chain minting operations.
+   - **ERC721 Token Creation:** Developed an ERC721 compliant contract for minting NFTs (FreeMint NFT and Mintable NFT) with the ability to handle on-chain minting operations by utilizing Openzeppelin's IERC721Receiver because stake can only happen via overridden function `onERC721Received`.
    - **ERC20 Token Integration:** Implemented an ERC20 token contract (`MyToken`) and integrated it with an NFT contract, enabling minting of NFTs via ERC20 token payments.
    - **Mintable NFTs:** Designed and deployed mintable NFTs that allow users to acquire NFTs through a token payment, demonstrating an understanding of payment structures in tokenized environments.
 

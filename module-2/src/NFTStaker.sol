@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+
 // Minimal interface for the stakable NFT.
 interface IStakableNFT {
     function transferFrom(address from, address to, uint256 tokenId) external;
@@ -11,7 +13,7 @@ interface IRewardToken {
     function mint(address to, uint256 amount) external;
 }
 
-contract NFTStaker {
+contract NFTStaker is IERC721Receiver {
     IStakableNFT public nft;
     IRewardToken public rewardToken;
     
@@ -57,15 +59,34 @@ contract NFTStaker {
         rewardToken.mint(msg.sender, REWARD_AMOUNT);
     }
     
-    // Unstake the NFT: remove its staking record and transfer it back to the staker.
+    // Unstake the NFT, claim reward if any, and remove its staking record.
     function unstakeNFT(uint256 tokenId) external {
         StakeInfo storage info = stakes[tokenId];
         require(info.staker == msg.sender, "Not the staker");
+
+        // Claim rewards before unstaking.
+        if (block.timestamp >= info.lastClaimTime + REWARD_INTERVAL) {
+            this.claimReward(tokenId);
+        }
         
         // Clear the staking record.
         delete stakes[tokenId];
         
         // Transfer the NFT back to its owner.
         nft.transferFrom(address(this), msg.sender, tokenId);
+    }
+
+    // Override onERC721Received to handle receiving NFTs.
+    function onERC721Received(
+        address operator, 
+        address from, 
+        uint256 tokenId, 
+        bytes calldata data
+    ) external override returns (bytes4) {
+        // Ensure only the correct NFT contract is sending the tokens.
+        require(msg.sender == address(nft), "Invalid NFT contract");
+
+        // The NFT is successfully received, log or process it as needed. ( .selector)
+        return this.onERC721Received.selector;
     }
 }
